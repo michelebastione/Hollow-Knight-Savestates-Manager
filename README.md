@@ -6,3 +6,4 @@ Functions that are currently in development:
 - Adding new categories
 - Renaming and deleting existing savestates
 - Sorting savestates in different orders
+- Adding compatibility with Hollow Knight patches1.4+ and 1.5+
