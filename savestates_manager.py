@@ -135,6 +135,8 @@ class Frame(wx.Frame):
         if error.ShowModal() == wx.ID_OK:
             new_path = self.select_folder()
             if new_path:
+                if "0" in os.listdir(new_path):
+                    new_path += "\\0"
                 with open("game_data_folder.txt", 'w') as path:
                     path.write(new_path)
                 global full_path
@@ -205,6 +207,10 @@ if __name__ == "__main__":
     app = wx.App()
     frame = Frame()
     if os.path.exists(full_path):
+        if "0" in os.listdir(full_path):
+            full_path += "\\0"
+            with open("game_data_folder.txt", 'w') as path:
+                path.write(full_path)
         frame.load()
     else:
         frame.path_error()
