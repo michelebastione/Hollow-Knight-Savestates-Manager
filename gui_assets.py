@@ -4,6 +4,7 @@ import json, os, wx, sys
 class Frame(wx.Frame):
     custom_style = wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER | wx.MAXIMIZE_BOX)
     font = wx.Font(); font.SetPointSize(10)
+    font1 = wx.Font(); font1.SetPointSize(10); font1.Scale(2); font1.MakeUnderlined()
     font2 = wx.Font(); font2.SetPointSize(12); font2.MakeBold().MakeItalic()
 
     def __init__(self, preferences, parent=None, title="Hollow Knight Savestates Manager", size=(750, 480)):
@@ -13,14 +14,6 @@ class Frame(wx.Frame):
         self.SetIcon(wx.Icon(wx.Bitmap("icon.png")))
         self.preferences = preferences
         self.patch = preferences["patch"]
-        if self.patch == "1221":
-            self.current_ss = "savestates\\1221"
-            self.current_categories = os.listdir(self.current_ss)
-            self.full_path = f"{preferences['path']}\\Savestates-1221"
-        else:
-            self.current_ss = "savestates\\CP"
-            self.current_categories = os.listdir(self.current_ss)
-            self.full_path = f"{preferences['path']}\\DebugModData\\Savestates Current Patch\\0"
 
         self.cat_boxes = []
         self.saves_boxes = []
@@ -28,8 +21,8 @@ class Frame(wx.Frame):
         self.temporary_scenes = dict()
 
         file_menu = wx.Menu()
-        # changeGameFolder_button = file_menu.Append(wx.ID_ANY, "Change game data folder")
-        # addCategory_button = file_menu.Append(wx.ID_ANY, "Add new category")
+        changeGameFolder_button = file_menu.Append(wx.ID_ANY, "Change game data folder")
+        # TODO: addCategory_button = file_menu.Append(wx.ID_ANY, "Add new category")
 
         patch_menu = wx.Menu()
         self.patch_1221_button = patch_menu.Append(wx.ID_ANY, "Patch 1.2.2.1 Savestates")
@@ -47,14 +40,31 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.quit, exit_button)
         self.Bind(wx.EVT_MENU, self.switch_1221, self.patch_1221_button)
         self.Bind(wx.EVT_MENU, self.switch_cp, self.patch_cp_button)
-        # self.Bind(wx.EVT_MENU, self.select_folder, changeGameFolder_button)
+        self.Bind(wx.EVT_MENU, self.select_folder, changeGameFolder_button)
 
         self.menu = wx.MenuBar()
         self.menu.Append(file_menu, "&Settings")
         self.SetMenuBar(self.menu)
 
+        self.text1221 = wx.StaticText(self.panel, label="Savestates for Patch 1.2.2.1", pos=(0, -5))
+        self.text1221.SetFont(self.font1); self.text1221.Centre(wx.HORIZONTAL); self.text1221.Hide()
+        self.textCP = wx.StaticText(self.panel, label="Savestates for Current Patch", pos=(0, -5))
+        self.textCP.SetFont(self.font1); self.textCP.Centre(wx.HORIZONTAL); self.textCP.Hide()
         wx.StaticText(self.panel, label="Category", pos=(122, 35)).SetFont(self.font.MakeBold())
-        wx.StaticText(self.panel, label="Scene", pos=(272, 35)).SetFont(self.font.MakeBold())
+        wx.StaticText(self.panel, label="Scene", pos=(272, 35)).SetFont(self.font)
+
+        if self.patch == "1221":
+            self.ss_path = "savestates\\1221"
+            self.current_categories = os.listdir(self.ss_path)
+            self.current_path = f"{preferences['path']}\\Savestates-1221"
+            self.text1221.Show()
+            self.textCP.Hide()
+        else:
+            self.ss_path = "savestates\\CP"
+            self.current_categories = os.listdir(self.ss_path)
+            self.current_path = f"{preferences['path']}\\DebugModData\\Savestates Current Patch\\0"
+            self.text1221.Hide()
+            self.textCP.Show()
 
         for ss in range(6):
             wx.StaticText(self.panel, label=f"Savestate {ss}:", pos=(15, 8+50*(ss+1))).SetFont(self.font2)
@@ -90,7 +100,7 @@ class Frame(wx.Frame):
     def load(self):
         self.Freeze()
         for box in range(6):
-            savestate = os.path.join(self.full_path, f"savestate{box}.json")
+            savestate = os.path.join(self.current_path, f"savestate{box}.json")
             if os.path.exists(savestate):
                 with open(savestate) as file:
                     temp = json.load(file)
@@ -103,6 +113,7 @@ class Frame(wx.Frame):
             else:
                 category = "Unknown"
                 scene = ""
+                self.buttons[box].Disable()
 
             if category in self.current_categories:
                 cat_choices = self.current_categories
@@ -126,7 +137,7 @@ class Frame(wx.Frame):
         scene.Clear()
         scene.Enable()
         if text:
-            raw_list = os.listdir(f"{self.current_ss}\\{text}")
+            raw_list = os.listdir(f"{self.ss_path}\\{text}")
             pretty_list = [*map(lambda x: x[:-5], raw_list)]
             scene.Enable()
             scene.AppendItems(pretty_list)
@@ -141,7 +152,7 @@ class Frame(wx.Frame):
         choice = evt.GetEventObject()
         choice_id = choice.box_id
         corresponding_cat = self.cat_boxes[choice_id].Value
-        scene_path = f"savestates\\{corresponding_cat}\\{choice.Value}.json"
+        scene_path = f"{self.ss_path}\\{corresponding_cat}\\{choice.Value}.json"
         self.temporary_scenes[choice_id] = scene_path
         self.apply_changes.Enable(); self.cancel.Enable(); self.buttons[choice_id].Enable()
 
@@ -149,7 +160,7 @@ class Frame(wx.Frame):
         for choice_id, scene_path in self.temporary_scenes.items():
             with open(scene_path) as file:
                 current_ss = json.load(file)
-            with open(f"{self.full_path}\\savestate{choice_id}.json", "w") as file:
+            with open(f"{self.current_path}\\savestate{choice_id}.json", "w") as file:
                 json.dump(current_ss, file, indent=4)
         self.apply_changes.Disable(); self.cancel.Disable()
 
@@ -176,26 +187,32 @@ class Frame(wx.Frame):
             if new_path:
                 if "0" in os.listdir(new_path):
                     new_path += "\\0"
-                with open("game_data_folder.json", 'w') as path:
-                    path.write(new_path)
-                self.full_path = new_path
+                self.preferences['path'] = new_path
+                self.current_path = new_path
+                with open("game_data_folder.json", 'w') as file:
+                    json.dump(self.preferences, file)
+                self.load()
 
     def switch_1221(self, evt):
         self.preferences["patch"] = "1221"
-        self.current_ss = "savestates\\1221"
-        self.current_categories = os.listdir(self.current_ss)
-        self.full_path = f"{self.preferences['path']}\\Savestates-1221"
+        self.ss_path = "savestates\\1221"
+        self.current_categories = os.listdir(self.ss_path)
+        self.current_path = f"{self.preferences['path']}\\Savestates-1221"
         self.patch_1221_button.Enable(False)
         self.patch_cp_button.Enable()
+        self.text1221.Show()
+        self.textCP.Hide()
         self.load()
 
     def switch_cp(self, evt):
         self.preferences["patch"] = "CP"
-        self.current_ss = "savestates\\CP"
-        self.current_categories = os.listdir(self.current_ss)
-        self.full_path = f"{self.preferences['path']}\\DebugModData\\Savestates Current Patch\\0"
+        self.ss_path = "savestates\\CP"
+        self.current_categories = os.listdir(self.ss_path)
+        self.current_path = f"{self.preferences['path']}\\DebugModData\\Savestates Current Patch\\0"
         self.patch_1221_button.Enable()
         self.patch_cp_button.Enable(False)
+        self.text1221.Hide()
+        self.textCP.Show()
         self.load()
 
     def quit(self, evt):
@@ -242,7 +259,7 @@ class Dialog(wx.Dialog):
                                     message="Do you want to overwrite the savestate with the same name?",
                                     style=wx.YES_NO | wx.ICON_WARNING).ShowModal() == wx.ID_NO: return
 
-            with open(f"{self.parent.full_path}\\savestate{self.ss_id}.json") as file:
+            with open(f"{self.parent.current_path}\\savestate{self.ss_id}.json") as file:
                 temp = json.load(file)
                 temp["saveStateIdentifier"] = new_scene
             with open(new_path, "w") as file:
