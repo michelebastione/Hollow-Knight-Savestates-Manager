@@ -16,7 +16,7 @@ if __name__ == "__main__":
     frame = Frame(data)
     if os.path.exists(base_path):
         if "0" in os.listdir(base_path):
-            frame.full_path += "\\0"
+            frame.current_path += "\\0"
         frame.load()
     else:
         frame.path_error()
