@@ -15,7 +15,7 @@ if __name__ == "__main__":
     app = wx.App()
     frame = Frame(data)
     if os.path.exists(base_path):
-        if "0" in os.listdir(base_path):
+        if "0" in os.listdir(frame.current_path):
             frame.current_path += "\\0"
         frame.load()
     else:
