@@ -183,7 +183,7 @@ class Frame(wx.Frame):
 
     def button_handler(self, evt):
         button_id = evt.GetEventObject().button_id
-        dialog = Dialog(self, button_id, self.current_categories)
+        dialog = Dialog(self, button_id)
         dialog.ShowModal()
 
     def path_error(self):
@@ -243,7 +243,7 @@ class Frame(wx.Frame):
 
 
 class Dialog(wx.Dialog):
-    def __init__(self, parent, ss_id, categories, title="Add savestate as", size=(400, 200)):
+    def __init__(self, parent, ss_id, title="Add savestate as", size=(400, 200)):
         super(Dialog, self).__init__(parent, title=title, size=size, style=wx.CAPTION | wx.CLOSE_BOX)
         self.Centre()
         self.ss_id = ss_id
@@ -254,7 +254,7 @@ class Dialog(wx.Dialog):
         wx.StaticText(small_panel, label="Enter scene name:", pos=(10, 75)).SetFont(Frame.font)
         self.category_choice = wx.ComboBox(small_panel, pos=(150, 35), size=(200, 100),
                                            style=wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT)
-        self.category_choice.AppendItems(categories)
+        self.category_choice.AppendItems(self.parent.current_categories)
         self.new_name = wx.TextCtrl(small_panel, pos=(150, 75), size=(200, 25))
         self.ok_button = wx.Button(small_panel, label="Ok", pos=(130, 120), name="ok")
         self.cancel_button = wx.Button(small_panel, label="Cancel", pos=(220, 120), name="cancel")
@@ -273,7 +273,7 @@ class Dialog(wx.Dialog):
     def onButton(self, evt):
         if evt.GetEventObject().GetName() == "ok":
             new_cat = self.category_choice.GetValue(); new_scene = self.new_name.GetValue()
-            new_path = f"savestates\\{new_cat}\\{new_scene}.json"
+            new_path = f"savestates\\{self.parent.patch}\\{new_cat}\\{new_scene}.json"
             if os.path.exists(new_path):
                 if wx.MessageDialog(self, caption="This savestate already exists!",
                                     message="Do you want to overwrite the savestate with the same name?",
