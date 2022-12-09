@@ -4630,5 +4630,6 @@
     },
     "filePath": "",
     "isKinematized": false,
-    "loadedScenes": []
+    "loadedScenes": [],
+    "category": "Any%"
 }
