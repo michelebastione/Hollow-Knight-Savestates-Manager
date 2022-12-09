@@ -43,7 +43,7 @@
         "shadeScene": "None",
         "shadeMapZone": "CROSSROADS",
         "shadePositionX": 126.81999969482422,
-        "shadePositionY": 8.899999618530274,
+        "shadePositionY": 8.899999618530273,
         "shadeHealth": 2,
         "shadeMP": 1,
         "shadeFireballLevel": 1,
@@ -51,12 +51,12 @@
         "shadeScreamLevel": 0,
         "shadeSpecialType": 0,
         "shadeMapPos": {
-            "x": 3.7289979457855226,
+            "x": 3.7289979457855225,
             "y": 3.44599986076355,
             "z": 0.0
         },
         "dreamgateMapPos": {
-            "x": 4.8950018882751469,
+            "x": 4.8950018882751465,
             "y": -11.476996421813965,
             "z": 0.0
         },
@@ -85,7 +85,7 @@
         "dreamOrbsSpent": 5,
         "dreamGateScene": "Abyss_06_Core",
         "dreamGateX": 26.9080867767334,
-        "dreamGateY": 3.4284110069274904,
+        "dreamGateY": 3.4284110069274902,
         "hasDash": true,
         "hasWalljump": true,
         "hasSuperDash": true,
@@ -8485,5 +8485,6 @@
         "z": 0.004000000189989805
     },
     "filePath": "",
-    "isKinematized": false
+    "isKinematized": false,
+    "category": "True Ending"
 }
