@@ -2,9 +2,6 @@
 Program that simplifies the creation and maintenance of savestates for Hollow Knight!
 It comes with batteries included! That means full savestates lists for all major categories!
 
-**New!: Added support for Current Patch and 10 pages savestates!**
-
-Functions that are currently in development:
-- Adding new categories
-- Renaming and deleting existing savestates
-- Sorting savestates in different orders
+**New!** 
+- Added support for Current Patch and 10 pages savestates! (old debug deprecated at the moment)
+- Now it is possible to make custom categories and edit/deleting existing ones and the savestates they contain!
