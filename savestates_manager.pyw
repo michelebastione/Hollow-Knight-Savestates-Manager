@@ -8,14 +8,12 @@ with open("game_data.json") as file:
     base_path = os.path.abspath(data["path"].format(username))
     data["path"] = base_path
     patch = data["patch"]
-#Todo: add condition for when current user is different than in the json file
+# Todo: add reset to default condition
 
 if __name__ == "__main__":
     app = wx.App()
     frame = Frame(data)
     if os.path.exists(base_path):
-        # if "0" in os.listdir(frame.current_path):
-        #     frame.current_path += "\\0"
         frame.load()
     else:
         frame.path_error()
