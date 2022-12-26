@@ -4,12 +4,12 @@ import os, sys, json, wx
 
 class Frame(wx.Frame):
     custom_style = wx.DEFAULT_FRAME_STYLE & ~(wx.RESIZE_BORDER | wx.MAXIMIZE_BOX)
-    font = wx.Font(); font.SetPointSize(10)
-    font1 = wx.Font(); font1.SetPointSize(10); font1.Scale(2)
-    font2 = wx.Font(); font2.SetPointSize(12); font2.MakeBold().MakeItalic()
+    font = wx.Font(); font.SetFaceName("Constantia"); font.SetPointSize(12)
+    font1 = wx.Font(); font1.SetFaceName("Gabriola"); font1.Scale(3); font1.MakeBold()
+    font2 = wx.Font(); font2.SetFaceName("Constantia"); font2.SetPointSize(13); font2.MakeBold().MakeItalic()
     beige = (249, 247, 223, 1)
 
-    def __init__(self, settings, parent=None, title="Hollow Knight Savestates Manager", size=(760, 600)):
+    def __init__(self, settings, parent=None, title="Hollow Knight Savestates Manager", size=(760, 650)):
         super().__init__(parent, title=title, size=size, style=self.custom_style)
         self.Center()
         self.panel = wx.Panel(self, style=wx.SUNKEN_BORDER)
@@ -25,10 +25,8 @@ class Frame(wx.Frame):
         self.temporary_scenes = {}
 
         file_menu = wx.Menu()
-        change_game_folder = file_menu.Append(wx.ID_ANY, "Change game data folder")
-        edit_button = file_menu.Append(wx.ID_ANY, "Edit savestates")
-
         patch_menu = wx.Menu()
+
         self.patch_1221_button = patch_menu.Append(wx.ID_ANY, "Patch 1.2.2.1 Savestates")
         self.patch_cp_button = patch_menu.Append(wx.ID_ANY, "Current Patch Savestates")
         if self.patch == "1221":
@@ -37,10 +35,13 @@ class Frame(wx.Frame):
         else:
             self.patch_1221_button.Enable()
             self.patch_cp_button.Enable(False)
-        file_menu.AppendSubMenu(patch_menu, "Switch Patches")
 
+        file_menu.AppendSubMenu(patch_menu, "Switch Patches")
+        edit_button = file_menu.Append(wx.ID_ANY, "Edit savestates")
+        change_game_folder = file_menu.Append(wx.ID_ANY, "Change game data folder")
         file_menu.AppendSeparator()
         exit_button = file_menu.Append(wx.ID_EXIT, 'Exit')
+
         self.Bind(wx.EVT_MENU, self.quit, exit_button)
         self.Bind(wx.EVT_MENU, self.switch_1221, self.patch_1221_button)
         self.Bind(wx.EVT_MENU, self.switch_cp, self.patch_cp_button)
@@ -53,21 +54,25 @@ class Frame(wx.Frame):
 
         self.text1221 = wx.StaticText(self.panel, label="Savestates for Patch 1.2.2.1")
         self.text1221.SetFont(self.font1)
+        if self.text1221.GetFont().GetFaceName() == "Gabriola":
+            self.text1221.SetPosition((0, -10))
         self.text1221.Centre(wx.HORIZONTAL)
         self.text1221.Hide()
 
         self.textCP = wx.StaticText(self.panel, label="Savestates for Current Patch")
         self.textCP.SetFont(self.font1)
+        if self.textCP.GetFont().GetFaceName() == "Gabriola":
+            self.textCP.SetPosition((0, -10))
         self.textCP.Centre(wx.HORIZONTAL)
         self.textCP.Hide()
 
-        self.page_box = wx.ComboBox(self.panel, size=(100, 30), pos=(10, 45), style=wx.CB_READONLY)
+        self.page_box = wx.ComboBox(self.panel, size=(100, 30), pos=(10, 70), style=wx.CB_READONLY)
         self.page_box.Bind(wx.EVT_COMBOBOX, self.onPageSelect)
         self.page_box.AppendItems([f"Page {n}" for n in range(10)])
         self.page_box.SetSelection(0)
 
-        wx.StaticText(self.panel, label="Category", pos=(155, 50)).SetFont(self.font.MakeBold())
-        wx.StaticText(self.panel, label="Scene", pos=(390, 50)).SetFont(self.font)
+        wx.StaticText(self.panel, label="Category", pos=(150, 75)).SetFont(self.font)
+        wx.StaticText(self.panel, label="Scene", pos=(390, 75)).SetFont(self.font)
 
         if self.patch == "1221":
             self.ss_path = "savestates\\1221"
@@ -84,11 +89,11 @@ class Frame(wx.Frame):
 
         style = wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT
         for ss in range(10):
-            text = wx.StaticText(self.panel, label=f"Savestate {ss}:", pos=(10, 70+43*ss))
+            text = wx.StaticText(self.panel, label=f"Savestate {ss}:", pos=(10, 100+43*ss))
             text.SetFont(self.font2)
-            category_box = wx.ComboBox(self.panel, size=(130, 30), pos=(120, 70+43*ss), style=style)
-            savestate_box = wx.ComboBox(self.panel, size=(300, 30), pos=(275, 70+43*ss), style=style)
-            button = wx.Button(self.panel, label=f"Add as new savestate", size=(130, 35), pos=(600, 65+43*ss))
+            category_box = wx.ComboBox(self.panel, size=(130, 30), pos=(120, 100+43*ss), style=style)
+            savestate_box = wx.ComboBox(self.panel, size=(300, 30), pos=(275, 100+43*ss), style=style)
+            button = wx.Button(self.panel, label=f"Add as new savestate", size=(130, 35), pos=(600, 95+43*ss))
 
             category_box.Disable()
             savestate_box.Disable()
@@ -103,8 +108,8 @@ class Frame(wx.Frame):
             button.Disable()
             self.buttons.append(button)
 
-        self.apply_changes = wx.Button(self.panel, label=f"Apply savestates", pos=(280, 500))
-        self.cancel = wx.Button(self.panel, label=f"Cancel", pos=(400, 500))
+        self.apply_changes = wx.Button(self.panel, label=f"Apply savestates", pos=(280, 550))
+        self.cancel = wx.Button(self.panel, label=f"Cancel", pos=(400, 550))
         self.apply_changes.Bind(wx.EVT_BUTTON, self.overwrite)
         self.cancel.Bind(wx.EVT_BUTTON, self.revert)
         self.apply_changes.Disable()
@@ -352,6 +357,8 @@ class ELB(EditableListBox):
             self.IsMakingNew = False
 
         elif self.label == "Categories":
+            if previous_name == new_name:
+                return
             new_path = f"{main_path}\\{new_name}"
             os.rename(category_path, new_path)
             progress = wx.ProgressDialog("Updating...", "Please wait until the process is finished")
@@ -404,7 +411,7 @@ class ManageDialog(wx.Dialog):
         self.main_path = parent.ss_path
         self.current_category = None
         small_panel = wx.Panel(self, style=wx.SUNKEN_BORDER)
-        small_panel.SetBackgroundColour('white')
+        small_panel.SetBackgroundColour(Frame.beige)
 
         style_1 = wx.adv.EL_DEFAULT_STYLE | wx.adv.EL_NO_REORDER
         style_2 = wx.adv.EL_ALLOW_EDIT | wx.adv.EL_ALLOW_DELETE | wx.adv.EL_NO_REORDER
@@ -450,15 +457,15 @@ class AddDialog(wx.Dialog):
         self.ss_id = ss_id
         self.parent = parent
 
-        small_panel = wx.Panel(self)
-        small_panel.SetBackgroundColour('white')
-        wx.StaticText(small_panel, label="Select category:", pos=(10, 35)).SetFont(Frame.font)
-        wx.StaticText(small_panel, label="Enter scene name:", pos=(10, 75)).SetFont(Frame.font)
+        small_panel = wx.Panel(self, style=wx.SUNKEN_BORDER)
+        small_panel.SetBackgroundColour(Frame.beige)
+        wx.StaticText(small_panel, label="Select category:", pos=(30, 35)).SetFont(Frame.font)
+        wx.StaticText(small_panel, label="Enter scene name:", pos=(15, 75)).SetFont(Frame.font)
 
         style = wx.CB_DROPDOWN | wx.CB_READONLY | wx.CB_SORT
-        self.category_choice = wx.ComboBox(small_panel, pos=(150, 35), size=(200, 100), style=style)
+        self.category_choice = wx.ComboBox(small_panel, pos=(155, 35), size=(200, 100), style=style)
         self.category_choice.AppendItems(self.parent.current_categories)
-        self.new_name = wx.TextCtrl(small_panel, pos=(150, 75), size=(200, 25))
+        self.new_name = wx.TextCtrl(small_panel, pos=(155, 75), size=(200, 25))
         self.ok_button = wx.Button(small_panel, label="Ok", pos=(130, 120), name="ok")
         self.cancel_button = wx.Button(small_panel, label="Cancel", pos=(220, 120), name="cancel")
 
