@@ -16,7 +16,7 @@ class Frame(wx.Frame):
         self.panel = wx.Panel(self, style=wx.SUNKEN_BORDER)
         self.panel.SetBackgroundColour(bground_color)
 
-        self.SetIcon(wx.Icon(wx.Bitmap("icon.png")))
+        self.SetIcon(wx.Icon(wx.Bitmap("quill.png")))
         self.settings = settings
         self.patch = settings["patch"]
 
